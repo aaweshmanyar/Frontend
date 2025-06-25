@@ -694,16 +694,16 @@
                         </div>
                     </div>
                     <div id="searchOptionsContainer" class="urdu-text header-search-options-container">
-                        <!-- <div class="flex justify-center flex-wrap gap-3 mt-4 header-category-buttons-wrap">
-                            <button data-category="نعت" class="category-tag urdu-text-xs category-naat header-category-tag"><span class="category-name">نعت</span> <span class="category-post-count"></span></button>
+                       <div id="categoryButtons" class="flex justify-center flex-wrap gap-3 mt-4 header-category-buttons-wrap">
+                         <!--     <button data-category="نعت" class="category-tag urdu-text-xs category-naat header-category-tag"><span class="category-name">نعت</span> <span class="category-post-count"></span></button>
                             <button data-category="سلام" class="category-tag urdu-text-xs category-salam header-category-tag"><span class="category-name">سلام</span> <span class="category-post-count"></span></button>
                             <button data-category="منقبت" class="category-tag urdu-text-xs category-manqabat header-category-tag"><span class="category-name">منقبت</span> <span class="category-post-count"></span></button>
                             <button data-category="قطعات" class="category-tag urdu-text-xs category-qataat header-category-tag"><span class="category-name">قطعات</span> <span class="category-post-count"></span></button>
                             <button data-category="موضوعات" class="category-tag urdu-text-xs category-mawzoat header-category-tag"><span class="category-name">موضوعات</span> <span class="category-post-count"></span></button>
                             <button data-category="شاعر" class="category-tag urdu-text-xs category-shayar header-category-tag"><span class="category-name">شاعر</span> <span class="category-post-count"></span></button>
                             <button data-category="مضامین" class="category-tag urdu-text-xs category-mazameen header-category-tag"><span class="category-name">مضامین</span> <span class="category-post-count"></span></button>
-                            <button data-category="کتب" class="category-tag urdu-text-xs category-kutub header-category-tag"><span class="category-name">کتب</span> <span class="category-post-count"></span></button>
-                        </div> -->
+                            <button data-category="کتب" class="category-tag urdu-text-xs category-kutub header-category-tag"><span class="category-name">کتب</span> <span class="category-post-count"></span></button> -->
+                        </div> 
                         <input type="hidden" id="selectedSearchCategory" value="" class="header-selected-category-input">
                     </div>
                 </div>
@@ -1397,7 +1397,10 @@
     </div>
 
 
-    <script src="script.js"></script>
+    <!-- Add these before your script -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script type="Module" src="script.js"></script>
     <script>
         // Set current year in footer
         document.getElementById('currentYear').textContent = new Date().getFullYear();
