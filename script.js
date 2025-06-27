@@ -1,6 +1,8 @@
 // Import Firebase modules (add this at the top of your file)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, limit,
+  query } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyC6tclAI1v3gmseON3S83AAzRGnQck-2Yo",
@@ -50,51 +52,51 @@ const topicsRef = collection(db, "topics");
   }
 
 
-  const loadSpecialOffering = async () => {
-  try {
-    // Initialize Firebase if not already done
-    const postsRef = db.collection('kalamPosts'); // Change 'posts' to your collection name
-    const snapshot = await postsRef.limit(7).get(); // Limit to 7 posts
+//   const loadSpecialOffering = async () => {
+//   try {
+//     // Initialize Firebase if not already done
+//     const postsRef = db.collection('kalamPosts'); // Change 'posts' to your collection name
+//     const snapshot = await postsRef.limit(7).get(); // Limit to 7 posts
 
-    const wrapper = document.querySelector('#peshkashSlider .slider-wrapper');
-    wrapper.innerHTML = ''; // Clear existing slides
+//     const wrapper = document.querySelector('#peshkashSlider .slider-wrapper');
+//     wrapper.innerHTML = ''; // Clear existing slides
 
-    if (snapshot.empty) {
-      console.warn("No posts found");
-      return;
-    }
+//     if (snapshot.empty) {
+//       console.warn("No posts found");
+//       return;
+//     }
 
-    snapshot.forEach(doc => {
-      const post = doc.data();
-      const lines = post.postUrdu // Assuming field is named postUrdu in Firestore
-        .split(/،|\n|\.|\r|!|\?|(?<=ہیں)/)
-        .map(line => line.trim())
-        .filter(line => line.length > 0);
+//     snapshot.forEach(doc => {
+//       const post = doc.data();
+//       const lines = post.postUrdu // Assuming field is named postUrdu in Firestore
+//         .split(/،|\n|\.|\r|!|\?|(?<=ہیں)/)
+//         .map(line => line.trim())
+//         .filter(line => line.length > 0);
 
-      const couplet = lines.slice(0, 2).join('<br>');
-      const poet = post.writer || ''; // Assuming field is named writer in Firestore
+//       const couplet = lines.slice(0, 2).join('<br>');
+//       const poet = post.writer || ''; // Assuming field is named writer in Firestore
 
-      const slide = document.createElement('div');
-      slide.className = 'slider-slide p-4 text-center special-offering-slide-content';
-      slide.innerHTML = `
-        <p class="urdu-text urdu-text-lg sm:urdu-text-xl text-gray-800 leading-loose max-w-2xl mx-auto special-offering-slide-couplet">
-          ${couplet}
-        </p>
-        <p class="urdu-text urdu-text-xs sm:urdu-text-sm text-gray-600 block mt-3 special-offering-slide-poet">
-          ${poet}
-        </p>
-      `;
+//       const slide = document.createElement('div');
+//       slide.className = 'slider-slide p-4 text-center special-offering-slide-content';
+//       slide.innerHTML = `
+//         <p class="urdu-text urdu-text-lg sm:urdu-text-xl text-gray-800 leading-loose max-w-2xl mx-auto special-offering-slide-couplet">
+//           ${couplet}
+//         </p>
+//         <p class="urdu-text urdu-text-xs sm:urdu-text-sm text-gray-600 block mt-3 special-offering-slide-poet">
+//           ${poet}
+//         </p>
+//       `;
 
-      wrapper.appendChild(slide);
-    });
+//       wrapper.appendChild(slide);
+//     });
 
-    // After injecting new slides, re-init the slider
-    initSlider('peshkashSlider');
+//     // After injecting new slides, re-init the slider
+//     initSlider('peshkashSlider');
 
-  } catch (error) {
-    console.error("Error loading special offering:", error);
-  }
-};
+//   } catch (error) {
+//     console.error("Error loading special offering:", error);
+//   }
+// };
 
 
 
@@ -148,6 +150,149 @@ async function loadwritersCards() {
   }
 }
 
+
+
+async function loadKalamSnippets() {
+  try {
+    const kalamPostsRef = collection(db, "kalamPosts");
+    const kalamQuery = query(kalamPostsRef, limit(4));
+    const querySnapshot = await getDocs(kalamQuery);
+
+    const articleCards = document.querySelectorAll("#kalampost .poetry-types-card");
+
+    let index = 0;
+    querySnapshot.forEach((doc) => {
+      if (index >= articleCards.length) return;
+
+      const post = doc.data();
+      const urduKalam = post.postUrdu || "";
+      const tag = post.tags || "کلام"; // fallback if tag not found
+
+      // Extract two meaningful lines
+      const lines = urduKalam
+        .split(/،|\n|\.|\r|!|\?|(?<=ہیں)/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+
+      const couplet = lines.slice(0, 2).join("<br>");
+
+      // Update DOM elements
+      const targetCard = articleCards[index];
+
+      const pTag = targetCard.querySelector(".poetry-type-description");
+      if (pTag) {
+        pTag.innerHTML = couplet;
+      }
+
+      const titleTag = targetCard.querySelector(".poetry-type-title");
+      if (titleTag) {
+        titleTag.textContent = tag;
+      }
+
+      index++;
+    });
+
+  } catch (error) {
+    console.error("❌ Error loading kalam snippets:", error);
+  }
+}
+
+
+async function loadSelectedKalamSnippets() {
+  try {
+    const kalamPostsRef = collection(db, "kalamPosts");
+    const kalamQuery = query(kalamPostsRef, limit(4));
+    const querySnapshot = await getDocs(kalamQuery);
+
+    const selectedCards = document.querySelectorAll(".selected-kalaam-card");
+
+    let index = 0;
+    querySnapshot.forEach((doc) => {
+      if (index >= selectedCards.length) return;
+
+      const post = doc.data();
+      const urduKalam = post.postUrdu || "";
+
+      // Break into lines
+      const lines = urduKalam
+        .split(/،|\n|\.|\r|!|\?|(?<=ہیں)/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+
+      const couplet = lines.slice(0, 2).join("<br>");
+
+      const card = selectedCards[index];
+      const coupletP = card.querySelector(".selected-kalaam-couplet");
+
+      if (coupletP) {
+        coupletP.innerHTML = couplet;
+      }
+
+      index++;
+    });
+
+  } catch (error) {
+    console.error("❌ Error loading selected kalaam snippets:", error);
+  }
+}
+
+
+async function loadBlogCards() {
+  const kalamPostsRef = collection(db, "articlePosts");
+  const kalamQuery = query(kalamPostsRef, limit(10));
+  const snapshot = await getDocs(kalamQuery);
+
+  const container = document.getElementById("blogCardsContainer"); // Add this div in your HTML
+  container.innerHTML = "";
+
+  snapshot.forEach((doc) => {
+    const post = doc.data();
+    const title = post.title || "بدون عنوان"; // You can change field name if needed
+    const postUrdu = post.BlogText || post.BlogText?.urdu ;
+    
+    const descriptionLines = postUrdu
+      .split(/،|\n|\.|\r|!|\?|(?<=ہیں)/)
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .slice(0, 7)
+      .join("۔ ");
+
+    const card = document.createElement("article");
+    card.className = "card p-4 relative article-card";
+
+    card.innerHTML = `
+      <span class="article-category-tag bg-teal-100 text-teal-600 urdu-text urdu-text-xs font-medium">نعت</span>
+      <h4 class="urdu-text urdu-text-md sm:urdu-text-lg font-semibold text-teal-700 mb-2 mt-9 text-right article-title">
+        ${title}
+      </h4>
+      <p class="urdu-text urdu-text-xs sm:urdu-text-sm text-gray-700 leading-relaxed mb-4 text-right article-preview-text"
+        style="max-height: 10.5em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 7; -webkit-box-orient: vertical;">
+        ${descriptionLines}
+      </p>
+      <div class="flex items-center justify-end mt-3 pt-3 border-t border-gray-100 article-meta-row">
+        <p class="urdu-text urdu-text-xs text-gray-600 article-writer-info">>شعر کا مفہوم: اے غوث اعظم...</p>
+        <div class="writer-icon-container writer-icon-bg-1 article-writer-icon-container">
+          <img src="${post.writerImage || 'https://res.cloudinary.com/awescreative/image/upload/v1749154741/Awes/User_icon.svg'}"
+               alt="Writer Icon" class="article-writer-icon">
+        </div>
+      </div>
+      <div class="stats-bar article-stats-bar">
+        <span><i class="bi bi-heart-fill text-red-500"></i> <span class="like-count urdu-text-xs">${post.likes || "1.9k"}</span></span>
+        <span><i class="bi bi-eye-fill text-blue-500"></i> <span class="view-count urdu-text-xs">${post.views || "2.6k"}</span></span>
+        <button class="share-icon-button"><i class="bi bi-share-fill"></i></button>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+// Load on page
+loadBlogCards();
+
+
+loadKalamSnippets()
+loadSelectedKalamSnippets()
 
 loadwritersCards()
 
